@@ -21,4 +21,10 @@ def get_all_user_type():
     res , st = UserTypeModule().get_all()
     return JSONResponse(content=res,status_code=st)
 
+@router.post("/update")
+def update_user_type(data : dict):
+    res , st = UserTypeModule().update(data)
+    return JSONResponse(content=res,status_code=st)
+
+
 

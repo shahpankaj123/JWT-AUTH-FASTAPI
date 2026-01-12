@@ -41,4 +41,26 @@ class UserTypeModule:
         finally:
             db.close()
 
+    def update(self ,data):
+        db = SessionLocal()
+        try:
+            user_type = data['userType']
+            user_type_id = data['userTypeId']
+
+            user_type_obj = db.get(UserType, user_type_id)
+            if not user_type_obj: return message("UserType not found"), 404
+
+            user_type_obj.user_type = user_type
+            db.commit()
+            db.refresh(user_type_obj)
+            return message("UserType updated successfully"), 200
+
+        except KeyError as k:
+            return message(f'{k} Field is Missing') ,404
+        except Exception as e:
+            db.rollback()
+            return message('Something Went Wrong'), 500
+        finally:
+            db.close()
+
 
