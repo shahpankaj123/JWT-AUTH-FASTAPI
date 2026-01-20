@@ -17,7 +17,6 @@ class UserTypeModule:
             db.add(user_type_obj)
             db.commit()
             db.refresh(user_type_obj)
-
             return message(mesaage='UserType Created Successfully'), 201
 
         except IntegrityError:
@@ -40,6 +39,20 @@ class UserTypeModule:
             return res_dict, 200
         finally:
             db.close()
+
+    def get_by_id(self ,user_type_id):
+        db = SessionLocal()
+        try:
+            data = db.get(UserType, user_type_id)
+            return {"id" : data.id , "userType" : data.user_type} ,200
+        except KeyError as k:
+            return message(f'{k} Field is Missing') ,404
+        except Exception as e:
+            db.rollback()
+            return message('Something Went Wrong'), 500
+        finally:
+            db.close()
+
 
     def update(self ,data):
         db = SessionLocal()
