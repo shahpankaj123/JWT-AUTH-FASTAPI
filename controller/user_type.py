@@ -10,10 +10,11 @@ service = UserTypeModule()
 @router.post("/create")
 async def create_user_type(data: dict):
     try:
-        res, st = await service.create(data["userType"])
+        user_type = data["userType"]
+        res, st = await service.create(user_type= user_type)
         return JSONResponse(content=res, status_code=st)
     except KeyError as k:
-        return JSONResponse(content=message(message=f"{k} Field is Missing"),status_code=400)
+        return JSONResponse(content=message(f"{k} Field is Missing"),status_code=400)
 
 @router.get("/")
 async def get_all_user_type():

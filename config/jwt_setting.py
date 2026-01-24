@@ -21,6 +21,7 @@ SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 password_hash = PasswordHash.recommended()
 
 def verify_password(plain_password, hashed_password): return password_hash.verify(plain_password, hashed_password)
