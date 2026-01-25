@@ -10,3 +10,9 @@ router = APIRouter()
 async def register_user( data : dict):
     res , st = await AuthService().create_user(data=data)
     return JSONResponse(content=res ,status_code=st)
+
+@router.post("/login")
+async def login(data : dict):
+    res ,st = await AuthService().login_user(data=data)
+    return JSONResponse(content=res ,status_code=st)
+

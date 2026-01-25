@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from config.database_connection import SessionLocal
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from model import mainapp_models as md
 
@@ -31,7 +32,7 @@ def get_password_hash(password): return password_hash.hash(password)
 async def get_user(email):
     async with SessionLocal() as db:
         try:    
-            result = await db.execute(select(md.User).where(md.User.email == email))
+            result = await db.execute(select(md.User).options(selectinload(md.User.user_type)).where(md.User.email == email))
             user = result.scalar_one_or_none()
             return user
         except Exception as e:
@@ -41,15 +42,15 @@ async def get_user(email):
 async def authenticate_user(email: str, password: str):
     user = await get_user(email)
     if not user:
-        return False
+        return None
     if not verify_password(password, user.password):
-        return False
+        return None
     return user
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+def create_access_token(data: dict, expires_delta: int | None = None):
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire = datetime.now(timezone.utc) + timedelta(minutes = expires_delta)
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes = ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})

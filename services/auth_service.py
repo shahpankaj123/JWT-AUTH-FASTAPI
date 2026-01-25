@@ -4,6 +4,8 @@ from model import mainapp_models as md
 from sqlalchemy import select ,or_
 from selector.common_function import message
 
+from datetime import datetime
+
 class AuthService:
 
     async def create_user(self ,data):
@@ -47,4 +49,36 @@ class AuthService:
                 await db.rollback()
                 print(e)
                 return message('Something went wrong'), 500
+            
+    async def login_user(self ,data):
+        try:
+            email = data['email']
+            password = data['password']
+
+            user = await jw.authenticate_user(email=email ,password= password)
+            if user is None : return message("Email or Password Not Match") ,400
+
+            token = jw.create_access_token({"email": user.email} ,expires_delta= 60)
+
+            async with SessionLocal() as db:
+                user.last_login = datetime.utcnow()
+                db.add(user)
+                await db.commit()
+
+            data = {
+                    'firstName' : user.first_name ,
+                    'lastName' : user.last_name ,
+                    'email' : user.email ,
+                    'token' : token,
+                    'phoneNo' : user.phone_number,
+                    'userTypeId' : user.user_type_id,
+                    'userType' : user.user_type.user_type
+                }
+
+            return data ,200
+        except KeyError as k:
+                return message(f'{k} is Missing') ,404
+        except Exception as e:
+                print(e)
+                return message('Something Went Wrong') ,500
 
